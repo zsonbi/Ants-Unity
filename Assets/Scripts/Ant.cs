@@ -5,19 +5,25 @@ public class Ant : MonoBehaviour
 {
     private float time = 0f;
     private float angle = 0f;
-    private byte counter = 0;
     private float colXCoord;
     private float colYCoord;
 
-    private static readonly float pickUpDist = 3f;
-    private static float speed = 1.0f;
-    private static float viewRange = 10f;
-    private static float viewAngle = 2f;
-    private static int layerNum;
-    private Stack<Vector2> breadCrumbs = new Stack<Vector2>();
-    private static Transform breadCrumbsParent;
+    private static int MaxDistance = 300;
 
-    public static byte DirChangeTimer = 20;
+    private static readonly float pickUpDist = 3f;
+    private static float speed = 0.5f;
+    private static float viewRange = 20f;
+    private static float viewAngle = 1.5f;
+    private static int foodLayerNumber;
+    private static int foodTrailLayerNumber;
+    private Stack<Vector2> breadCrumbs = new Stack<Vector2>();
+    private static Transform AntDroppedCellsParent;
+    private Queue<AntDroppedCell> trail;
+    private Vector2 moveVector = new Vector2();
+
+    private GameObject AntDroppedCellObj;
+
+    public static float DirChangeTimer = 0.2f;
 
     public float xPos { get => this.transform.position.x; }//Returns the x pos of the ant
     public float yPos { get => this.transform.position.y; }//Returns the y pos of the ant
@@ -30,13 +36,31 @@ public class Ant : MonoBehaviour
         this.colXCoord = transform.position.x;
         this.colYCoord = transform.position.y;
         angle = Random.Range(-Mathf.PI, Mathf.PI);
+        this.trail = new Queue<AntDroppedCell>();
+        for (int i = 0; i < 8; i++)
+        {
+            trail.Enqueue(Instantiate(AntDroppedCellObj, this.transform.position, new Quaternion(), AntDroppedCellsParent).GetComponent<AntDroppedCell>());
+        }
+        this.transform.eulerAngles = Vector3.forward * Mathf.Rad2Deg * angle;
+        InvokeRepeating("ChangeDir", 0, DirChangeTimer);
+        InvokeRepeating("DropBreadCrumb", 0, 0.9f);
     }
 
     private void Awake()
     {
-        layerNum = 1 << LayerMask.NameToLayer("foodLayer");
+        foodLayerNumber = 1 << LayerMask.NameToLayer("foodLayer");
+        foodTrailLayerNumber = 1 << LayerMask.NameToLayer("foodTrailLayer");
 
-        breadCrumbsParent = GameObject.Find("BreadCrumbs").transform;
+        AntDroppedCellsParent = GameObject.Find("AntDroppedCells").transform;
+
+        AntDroppedCellObj = Resources.Load<GameObject>("Prefabs/AntDroppedCell");
+    }
+
+    private void DropBreadCrumb()
+    {
+        AntDroppedCell Trailcache = trail.Dequeue();
+        Trailcache.ResetCell(System.Convert.ToByte(this.hasFood), this.transform.position);
+        trail.Enqueue(Trailcache);
     }
 
     private float See()
@@ -61,10 +85,10 @@ public class Ant : MonoBehaviour
 
         float closestDist = float.MaxValue;
         float BestAngle = float.MinValue;
-        Collider2D[] targets = Physics2D.OverlapCircleAll(this.transform.position, viewRange, layerNum);
+        Collider2D[] targets = Physics2D.OverlapCircleAll(this.transform.position, viewRange, foodLayerNumber);
         for (int i = 0; i < targets.Length; i++)
         {
-            Vector2 closest = targets[i].ClosestPoint(this.transform.position);
+            Vector2 closest = targets[i].transform.position;
             float enclosedAngle = CalcAngle(xPos, yPos, closest.x, closest.y);
 
             if (Mathf.Abs(angle - enclosedAngle) <= viewAngle / 2)
@@ -90,7 +114,51 @@ public class Ant : MonoBehaviour
             return BestAngle;
         }
 
+        Collider2D[] foodTrails = Physics2D.OverlapCircleAll(this.transform.position, viewRange, foodTrailLayerNumber);
+
+        for (int i = 0; i < foodTrails.Length; i++)
+        {
+            Vector2 closest = foodTrails[i].transform.position;
+            float enclosedAngle = CalcAngle(xPos, yPos, closest.x, closest.y);
+            float relativeAngle = angle - enclosedAngle;
+
+            if (Mathf.Abs(relativeAngle) <= viewAngle / 2)
+            {
+                return enclosedAngle;
+            }
+        }
+
+        /*   if (BestAngle != float.MinValue)
+           {
+               return BestAngle;
+           }*/
+
         return this.angle += Random.Range(-0.4f, 0.4f);
+    }
+
+    private void ChangeDir()
+    {
+        if (breadCrumbs.Count == MaxDistance)
+        {
+            goingBack = true;
+        }
+        angle = See();
+
+        if (angle >= Mathf.PI)
+        {
+            angle -= Mathf.PI * 2;
+        }
+        else if (angle <= -Mathf.PI)
+        {
+            angle += Mathf.PI * 2;
+        }
+        this.transform.eulerAngles = Vector3.forward * Mathf.Rad2Deg * angle;
+
+        moveVector.x = speed * Mathf.Cos(angle);
+        moveVector.y = speed * Mathf.Sin(angle);
+
+        if (!goingBack)
+            breadCrumbs.Push(this.transform.position);
     }
 
     // Update is called once per frame
@@ -98,34 +166,11 @@ public class Ant : MonoBehaviour
     {
         time += Time.deltaTime;
 
-        if (counter % DirChangeTimer == DirChangeTimer - 1)
+        if (time >= 0.05f)
         {
-            angle = See();
-            angle %= Mathf.PI * 2;
-            this.transform.eulerAngles = Vector3.forward * Mathf.Rad2Deg * angle;
-            if (!this.goingBack)
-            {
-                GameObject breadCrumb = new GameObject("breadCrumb", typeof(SpriteRenderer), typeof(BreadCrumb));
-                breadCrumb.transform.position = new Vector3(xPos, yPos);
-                breadCrumb.AddComponent<BoxCollider2D>();
-                breadCrumbs.Push(new Vector2(xPos, yPos));
-                breadCrumb.transform.SetParent(breadCrumbsParent);
-            }
-            else if (hasFood)
-            {
-                GameObject FoodTrail = new GameObject("FoodTrail", typeof(SpriteRenderer), typeof(FoodTrail));
-                FoodTrail.transform.position = new Vector3(xPos, yPos);
-            }
-
-            counter = 0;
-        }
-
-        if (time >= 0.10f)
-        {
-            this.transform.position = new Vector3(this.transform.position.x + speed * Mathf.Cos(angle), this.transform.position.y + speed * Mathf.Sin(angle));
+            this.transform.position = new Vector3(this.transform.position.x + moveVector.x, this.transform.position.y + moveVector.y);
 
             time = 0;
-            counter++;
         }
     }
 
@@ -137,6 +182,12 @@ public class Ant : MonoBehaviour
 
     private void GotHome()
     {
+        if (hasFood)
+        {
+            this.angle = (this.angle - Mathf.PI) % (Mathf.PI * 2);
+            this.GetComponentInParent<Colony>().BroughtHomeFood();
+        }
+
         this.hasFood = false;
         this.goingBack = false;
         this.breadCrumbs.Clear();
@@ -166,5 +217,10 @@ public class Ant : MonoBehaviour
     private static float CalcVectorLength(float x1, float y1, float x2, float y2)
     {
         return Mathf.Sqrt(Mathf.Pow(x2 - x1, 2) + Mathf.Pow(y2 - y1, 2));
+    }
+
+    private void OnBecameInvisible()
+    {
+        angle += Mathf.PI;
     }
 }

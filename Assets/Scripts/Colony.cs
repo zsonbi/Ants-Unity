@@ -4,39 +4,38 @@ using UnityEngine;
 
 public class Colony : MonoBehaviour
 {
-    public short AntCount { get; private set; }
+    public short AntCount = 0;
+    public bool SpawnAntWhenFoodIsBroughtHome = false;
 
     public float XPos { get => this.transform.position.x; }
     public float YPos { get => this.transform.position.y; }
 
     private static Sprite brownAntSprite;
+    private static GameObject antObj;
 
     private void Awake()
     {
-        brownAntSprite = Resources.Load<Sprite>("brownAnt");
+        antObj = Resources.Load<GameObject>("Prefabs/Ant");
     }
 
-    // Start is called before the first frame update
-    private void Start()
+    public void AddAnts(int numberOfAnts)
     {
-        for (int i = 0; i < 500; i++)
+        for (int i = 0; i < numberOfAnts; i++)
         {
             AddAnt();
         }
     }
 
-    // Update is called once per frame
-    private void Update()
+    private void AddAnt()
     {
+        Instantiate(antObj, this.transform.position, new Quaternion(), this.transform);
+
+        this.AntCount++;
     }
 
-    public void AddAnt()
+    public void BroughtHomeFood()
     {
-        GameObject ant = new GameObject("ant", typeof(SpriteRenderer), typeof(Ant));
-        ant.GetComponent<SpriteRenderer>().sprite = brownAntSprite;
-        ant.transform.position = new Vector3(XPos, YPos);
-        ant.AddComponent<BoxCollider2D>();
-        ant.transform.SetParent(this.transform);
-        this.AntCount++;
+        if (SpawnAntWhenFoodIsBroughtHome)
+            AddAnt();
     }
 }
