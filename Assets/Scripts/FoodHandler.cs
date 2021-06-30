@@ -2,47 +2,54 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FoodHandler : MonoBehaviour
+namespace AntSimulation
 {
-    public bool borderFood = true;
-    private float time = 0f;
-
-    private void Awake()
+    public class FoodHandler : MonoBehaviour
     {
-        if (borderFood)
-            FillBordersWithFood();
-    }
+        public bool borderFood = true; //Should the border be filled with food
 
-    // Update is called once per frame
-    private void Update()
-    {
-        time += Time.deltaTime;
-        if (time >= 0.1f)
+        private float time = 0f; //A time varriable so the user can't spawn endless amount of food
+
+        private static GameObject foodPrefab; //Food prefab
+
+        //-----------------------------------------------------
+        //Runs when the script is loaded
+        private void Awake()
         {
-            if (Input.GetMouseButton(0))
-            {
-                GameObject food = new GameObject("food", typeof(SpriteRenderer), typeof(Food));
+            //Load food prefab
+            foodPrefab = Resources.Load<GameObject>("Prefabs/Food");
+            if (borderFood)
+                FillBordersWithFood();
+        }
 
-                Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                food.transform.position = new Vector3(mousePos.x, mousePos.y);
-                food.transform.SetParent(this.transform);
+        //--------------------------------------------------------
+        // Update is called once per frame
+        private void Update()
+        {
+            time += Time.deltaTime;
+            if (time >= 0.1f)
+            {
+                if (Input.GetMouseButton(0))
+                {
+                    Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    Instantiate(foodPrefab, mousePos, new Quaternion(), this.transform);
+                }
             }
         }
-    }
 
-    private void FillBordersWithFood()
-    {
-        for (int i = 0; i < Screen.width; i++)
+        //---------------------------------------------------------------
+        //Fills the border with food
+        private void FillBordersWithFood()
         {
-            for (int j = 0; j < Screen.height; j++)
+            for (int i = 0; i < Screen.width; i++)
             {
-                if ((i < 4 || i >= Screen.width - 4) || (j < 4 || j >= Screen.height - 4))
+                for (int j = 0; j < Screen.height; j++)
                 {
-                    GameObject food = new GameObject("food", typeof(SpriteRenderer), typeof(Food));
-
-                    Vector2 mousePos = Camera.main.ScreenToWorldPoint(new Vector2(i, j));
-                    food.transform.position = new Vector3(mousePos.x, mousePos.y);
-                    food.transform.SetParent(this.transform);
+                    if ((i < 2 || i >= Screen.width - 2) || (j < 2 || j >= Screen.height - 2))
+                    {
+                        Vector2 convertedPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                        Instantiate(foodPrefab, convertedPos, new Quaternion(), this.transform);
+                    }
                 }
             }
         }

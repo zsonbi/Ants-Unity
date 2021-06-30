@@ -1,41 +1,72 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class Colony : MonoBehaviour
+namespace AntSimulation
 {
-    public short AntCount = 0;
-    public bool SpawnAntWhenFoodIsBroughtHome = false;
-
-    public float XPos { get => this.transform.position.x; }
-    public float YPos { get => this.transform.position.y; }
-
-    private static Sprite brownAntSprite;
-    private static GameObject antObj;
-
-    private void Awake()
+    /// <summary>
+    /// Controls the whole colony
+    /// </summary>
+    internal class Colony : MonoBehaviour
     {
-        antObj = Resources.Load<GameObject>("Prefabs/Ant");
-    }
+        /// <summary>
+        /// The number of ants the colony has
+        /// </summary>
+        public short AntCount = 0;
 
-    public void AddAnts(int numberOfAnts)
-    {
-        for (int i = 0; i < numberOfAnts; i++)
+        /// <summary>
+        /// Should the colony spawn a new ant when food is brought home
+        /// </summary>
+        public bool SpawnAntWhenFoodIsBroughtHome = false;
+
+        /// <summary>
+        /// The x coordinate of the colony
+        /// </summary>
+        public float XPos { get => this.transform.position.x; }
+
+        /// <summary>
+        /// The y coordinate of the colony
+        /// </summary>
+        public float YPos { get => this.transform.position.y; }
+
+        private static GameObject antObj; //Ant prefab
+
+        //-----------------------------------------------------
+        //Runs when the script is loaded
+        private void Awake()
         {
-            AddAnt();
+            //Loads in the ant prefab
+            antObj = Resources.Load<GameObject>("Prefabs/Ant");
         }
-    }
 
-    private void AddAnt()
-    {
-        Instantiate(antObj, this.transform.position, new Quaternion(), this.transform);
+        //------------------------------------------------------
+        /// <summary>
+        /// Adds a number of ants to the colony
+        /// </summary>
+        /// <param name="numberOfAnts">the number it should spawn</param>
+        public void AddAnts(int numberOfAnts)
+        {
+            for (int i = 0; i < numberOfAnts; i++)
+            {
+                AddAnt();
+            }
+        }
 
-        this.AntCount++;
-    }
+        //-------------------------------------------------------------
+        //Adds a single ant to the colony
+        private void AddAnt()
+        {
+            Instantiate(antObj, this.transform.position, new Quaternion(), this.transform);
 
-    public void BroughtHomeFood()
-    {
-        if (SpawnAntWhenFoodIsBroughtHome)
-            AddAnt();
+            this.AntCount++;
+        }
+
+        //-------------------------------------------------------------
+        /// <summary>
+        ///Should be only called when an ant brings home food
+        /// </summary>
+        internal void BroughtHomeFood()
+        {
+            if (SpawnAntWhenFoodIsBroughtHome)
+                AddAnt();
+        }
     }
 }

@@ -152,10 +152,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11097d3b8cd7d8a4a89f023aaf4a5509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingPop: 10
+  startingPop: 250
   colonyPositions:
-  - {x: -50, y: 0}
-  - {x: 50, y: 0}
+  - {x: -100, y: 0}
+  - {x: 100, y: 0}
 --- !u!4 &101831356
 Transform:
   m_ObjectHideFlags: 0
@@ -267,7 +267,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 300
+  orthographic size: 150
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2

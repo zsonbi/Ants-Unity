@@ -1,81 +1,108 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AntDroppedCell : MonoBehaviour
+namespace AntSimulation
 {
-    protected short timeToLive = maxTimeToLive;
-    protected Color color;
-    private float time;
-    public static readonly byte maxTimeToLive = 15;
-    private static int foodTrailLayer;
-    private SpriteRenderer spriteRendererCache;
-    private CircleCollider2D circleColliderCache;
-
-    public float xPos { get => this.transform.position.x; }
-    public float yPos { get => this.transform.position.y; }
-
-    private void Awake()
-    {
-        foodTrailLayer = LayerMask.NameToLayer("foodTrailLayer");
-        this.gameObject.SetActive(false);
-        spriteRendererCache = this.GetComponent<SpriteRenderer>();
-        circleColliderCache = this.GetComponent<CircleCollider2D>();
-        circleColliderCache.enabled = false;
-    }
-
-    private void Start()
-    {
-        InvokeRepeating("Decay", 0, 0.5f);
-    }
-
-    private void Decay()
-    {
-        if (!this.gameObject.activeSelf)
-            return;
-
-        timeToLive--;
-        this.color.a = timeToLive / (float)maxTimeToLive;
-        spriteRendererCache.color = this.color;
-        if (timeToLive <= 0)
-        {
-            this.gameObject.SetActive(false);
-        }
-    }
-
-    // Update is called once per frame
-    private void Update()
-    {
-    }
-
     /// <summary>
-    /// Resets the cell
+    /// This object is both the foodTrail and the breadCrumb depending on the type which is set in the ResetCell
     /// </summary>
-    /// <param name="type">0-breadCrumb, 1-foodTrail</param>
-    public void ResetCell(byte type, Vector2 newPos)
+    internal class AntDroppedCell : MonoBehaviour
     {
-        switch (type)
+        public static readonly byte maxTimeToLive = 15; //The time this poor cell can live
+
+        //Cache
+
+        private SpriteRenderer spriteRendererCache;
+        private CircleCollider2D circleColliderCache;
+
+        private short timeToLive = maxTimeToLive; //The remaining time to live
+        private Color color; //The color of the cell
+        private static int foodTrailLayerNumber; //The foodTrailLayer's number
+
+        /// <summary>
+        /// Gets the previous foodTrails positions
+        /// </summary>
+        public List<Vector2> prevTrailPositions { get; private set; }
+
+        /// <summary>
+        /// Returns the x pos of the cell
+        /// </summary>
+        public float XPos { get => this.transform.position.x; }
+
+        /// <summary>
+        /// Returns the y pos of the cell
+        /// </summary>
+        public float YPos { get => this.transform.position.y; }
+
+        //-----------------------------------------------------
+        //Runs when the script is loaded
+        private void Awake()
         {
-            //BreadCrumb
-            case 0:
-                this.color = new Color(0f, 0f, 1f, 1f);
-                this.gameObject.layer = 0;
-                circleColliderCache.enabled = false;
-                break;
-
-            //FoodTrail
-            case 1:
-                this.color = new Color(1f, 0f, 0f, 1f);
-                this.gameObject.layer = foodTrailLayer;
-                circleColliderCache.enabled = true;
-                break;
-
-            default:
-                break;
+            foodTrailLayerNumber = LayerMask.NameToLayer("foodTrailLayer");
+            this.gameObject.SetActive(false);
+            this.spriteRendererCache = this.GetComponent<SpriteRenderer>();
+            this.circleColliderCache = this.GetComponent<CircleCollider2D>();
+            this.circleColliderCache.enabled = false;
         }
-        timeToLive = maxTimeToLive;
-        this.transform.position = new Vector3(newPos.x, newPos.y, 15);
-        this.gameObject.SetActive(true);
-        spriteRendererCache.color = color;
+
+        //-----------------------------------------------------------------
+        // Start is called before the first frame update
+        private void Start()
+        {
+            InvokeRepeating("Decay", 0, 0.5f);
+        }
+
+        //-------------------------------------------------------------
+        //Decays the cell and fades it's color when timeToLive reaches 0 kills the cell
+        private void Decay()
+        {
+            if (!this.gameObject.activeSelf)
+                return;
+
+            this.timeToLive--;
+            this.color.a = timeToLive / (float)maxTimeToLive;
+            this.spriteRendererCache.color = this.color;
+            if (this.timeToLive <= 0)
+            {
+                this.gameObject.SetActive(false);
+            }
+        }
+
+        //------------------------------------------------------------------
+        /// <summary>
+        /// Resets the cell
+        /// </summary>
+        /// <param name="type">0-breadCrumb, 1-foodTrail</param>
+        public void ResetCell(byte type, Vector2 newPos, List<Vector2> prevTrailPositions = null)
+        {
+            switch (type)
+            {
+                //BreadCrumb
+                case 0:
+                    this.color = new Color(0f, 0f, 1f, 1f);
+                    this.gameObject.layer = 0;
+                    this.circleColliderCache.enabled = false;
+                    break;
+
+                //FoodTrail
+                case 1:
+                    this.color = new Color(1f, 0f, 0f, 1f);
+                    this.gameObject.layer = foodTrailLayerNumber;
+                    this.circleColliderCache.enabled = true;
+                    this.prevTrailPositions = new List<Vector2>();
+                    foreach (var item in prevTrailPositions)
+                    {
+                        this.prevTrailPositions.Add(item);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            this.timeToLive = maxTimeToLive;
+            this.transform.position = new Vector3(newPos.x, newPos.y, 15);
+            this.gameObject.SetActive(true);
+            this.spriteRendererCache.color = color;
+        }
     }
 }
