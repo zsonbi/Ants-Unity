@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace AntSimulation
 {
@@ -8,17 +9,41 @@ namespace AntSimulation
     /// </summary>
     public class AntSimulation : MonoBehaviour
     {
-        public int startingPop = 10; //The starting number of ants
-        public List<Vector2> colonyPositions = new List<Vector2>(); //The positions of the colonies
+        public static int startingPop = 100; //The starting number of ants
+        public static List<Vector2> colonyPositions = new List<Vector2>(new List<Vector2> { new Vector2(-100f, 0f), new Vector2(100f, 0f) }); //The positions of the colonies
 
         private static GameObject colonyObj; //The colony prefab
 
         //------------------------------------------------------------------------------
-        // Start is called before the first frame update
-        private void Start()
+        //Runs when the script is loaded
+        private void Awake()
         {
             //Loads the prefab
             colonyObj = Resources.Load<GameObject>("Prefabs/Colony");
+        }
+
+        //---------------------------------------------------------
+        // Start is called before the first frame update
+        private void Start()
+        {
+            StartSimulation();
+        }
+
+        //----------------------------------------------------------------
+        /// <summary>
+        /// Loads the main menu's scene
+        /// </summary>
+        public void BackToMainMenu()
+        {
+            SceneManager.LoadScene("Menu", LoadSceneMode.Single);
+        }
+
+        //------------------------------------------------------------------
+        /// <summary>
+        /// Starts the simulation (creates the colonies)
+        /// </summary>
+        public void StartSimulation()
+        {
             //Adds each colony
             foreach (var item in colonyPositions)
             {

@@ -10,13 +10,13 @@ namespace AntSimulation
     {
         //Changeable parameters
 
-        private static readonly int MaxDistance = 300; //The number of breadCrumbs the ant should leave before tracing them back
-        private static readonly byte numberOfBreadCrumbs = 8; //The number of breadCrumb object the ant should have
-        private static readonly float pickUpDist = 3f; //The range of the food pickup
-        private static readonly float speed = 0.5f; //The speed of the ant (The length of the vector)
-        private static readonly float viewDistance = 20f; //The distance of the ant detection
-        private static readonly float viewAngle = 1.5f; //The angle which the ant can see (in radian)
-        public static float DirChangeTimer = 0.2f; //The seconds there should be between the direction changes
+        internal static int MaxDistance = 300; //The number of breadCrumbs the ant should leave before tracing them back
+        internal static byte numberOfBreadCrumbs = 8; //The number of breadCrumb object the ant should have
+        internal static float pickUpDist = 3f; //The range of the food pickup
+        internal static float speed = 0.5f; //The speed of the ant (The length of the vector)
+        internal static float viewDistance = 20f; //The distance of the ant detection
+        internal static float viewAngle = 1.5f; //The angle which the ant can see (in radian)
+        internal static float DirChangeTimer = 0.2f; //The seconds there should be between the direction changes
 
         //Cache
 

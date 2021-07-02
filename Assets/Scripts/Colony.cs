@@ -15,7 +15,7 @@ namespace AntSimulation
         /// <summary>
         /// Should the colony spawn a new ant when food is brought home
         /// </summary>
-        public bool SpawnAntWhenFoodIsBroughtHome = false;
+        public static bool SpawnAntWhenFoodIsBroughtHome = false;
 
         /// <summary>
         /// The x coordinate of the colony
