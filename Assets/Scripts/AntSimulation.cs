@@ -9,7 +9,6 @@ namespace AntSimulation
     /// </summary>
     public class AntSimulation : MonoBehaviour
     {
-        public static int startingPop = 100; //The starting number of ants
         public static List<Vector2> colonyPositions = new List<Vector2>(new List<Vector2> { new Vector2(-100f, 0f), new Vector2(100f, 0f) }); //The positions of the colonies
 
         private static GameObject colonyObj; //The colony prefab
@@ -47,7 +46,7 @@ namespace AntSimulation
             //Adds each colony
             foreach (var item in colonyPositions)
             {
-                this.AddColony(item, startingPop);
+                this.AddColony(item, SimulationOptions.StartingPopulation);
             }
         }
 

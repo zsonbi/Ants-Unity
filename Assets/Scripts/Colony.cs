@@ -13,11 +13,6 @@ namespace AntSimulation
         public short AntCount = 0;
 
         /// <summary>
-        /// Should the colony spawn a new ant when food is brought home
-        /// </summary>
-        public static bool SpawnAntWhenFoodIsBroughtHome = false;
-
-        /// <summary>
         /// The x coordinate of the colony
         /// </summary>
         public float XPos { get => this.transform.position.x; }
@@ -65,7 +60,7 @@ namespace AntSimulation
         /// </summary>
         internal void BroughtHomeFood()
         {
-            if (SpawnAntWhenFoodIsBroughtHome)
+            if (SimulationOptions.SpawnAntWhenFoodIsBroughtHome)
                 AddAnt();
         }
     }

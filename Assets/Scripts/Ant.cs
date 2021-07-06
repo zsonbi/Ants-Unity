@@ -8,16 +8,6 @@ namespace AntSimulation
     /// </summary>
     internal class Ant : MonoBehaviour
     {
-        //Changeable parameters
-
-        internal static int MaxDistance = 300; //The number of breadCrumbs the ant should leave before tracing them back
-        internal static byte numberOfBreadCrumbs = 8; //The number of breadCrumb object the ant should have
-        internal static float pickUpDist = 3f; //The range of the food pickup
-        internal static float speed = 0.5f; //The speed of the ant (The length of the vector)
-        internal static float viewDistance = 20f; //The distance of the ant detection
-        internal static float viewAngle = 1.5f; //The angle which the ant can see (in radian)
-        internal static float DirChangeTimer = 0.2f; //The seconds there should be between the direction changes
-
         //Cache
 
         private static int foodLayerMask; //The mask for the foodLayer
@@ -64,12 +54,12 @@ namespace AntSimulation
             //Generate a random direction
             this.lookingDirection = Random.Range(-Mathf.PI, Mathf.PI);
             //Fills the trail queue
-            for (int i = 0; i < numberOfBreadCrumbs; i++)
+            for (int i = 0; i < SimulationOptions.NumberOfBreadCrumbs; i++)
             {
                 this.trail.Enqueue(Instantiate(DroppedCellPrefab, this.transform.position, new Quaternion(), DroppedCellParent).GetComponent<AntDroppedCell>());
             }
             //Sets the methods to periodic calls
-            InvokeRepeating("ChangeDir", 0, DirChangeTimer);
+            InvokeRepeating("ChangeDir", 0, SimulationOptions.DirChangeTimer);
             InvokeRepeating("DropBreadCrumb", 0, 0.9f);
             InvokeRepeating("Move", 0, 0.05f);
         }
@@ -93,7 +83,7 @@ namespace AntSimulation
             if (this.HasFood)
             {
                 Trailcache.ResetCell(System.Convert.ToByte(this.HasFood), this.transform.position, this.previousFoodTrails);
-                if (this.previousFoodTrails.Count == numberOfBreadCrumbs)
+                if (this.previousFoodTrails.Count == SimulationOptions.NumberOfBreadCrumbs)
                     this.previousFoodTrails.RemoveAt(0);
 
                 this.previousFoodTrails.Add(this.transform.position);
@@ -130,18 +120,18 @@ namespace AntSimulation
             float closestDist = float.MaxValue;
             float BestAngle = float.MinValue;
             //Get all of the food objects in a circle
-            Collider2D[] foodsInCircle = Physics2D.OverlapCircleAll(this.transform.position, viewDistance, foodLayerMask);
+            Collider2D[] foodsInCircle = Physics2D.OverlapCircleAll(this.transform.position, SimulationOptions.ViewDistance, foodLayerMask);
             for (int i = 0; i < foodsInCircle.Length; i++)
             {
                 Vector2 closest = foodsInCircle[i].transform.position;
                 float enclosedAngle = CalcAngle(XPos, YPos, closest.x, closest.y);
 
                 //If the ant can see that object
-                if (Mathf.Abs(this.lookingDirection - enclosedAngle) <= viewAngle / 2)
+                if (Mathf.Abs(this.lookingDirection - enclosedAngle) <= SimulationOptions.ViewAngle / 2)
                 {
                     float tempDist = CalcVectorLength(closest.x, closest.y, this.XPos, this.YPos);
                     //Pick is up if it is close enough
-                    if (tempDist < pickUpDist)
+                    if (tempDist < SimulationOptions.PickUpDist)
                     {
                         Destroy(foodsInCircle[i].gameObject);
                         PickedUpFood();
@@ -167,14 +157,14 @@ namespace AntSimulation
             }
 
             //Get all the foodTrails in a circle
-            Collider2D[] foodTrails = Physics2D.OverlapCircleAll(this.transform.position, viewDistance, foodTrailLayerMask);
+            Collider2D[] foodTrails = Physics2D.OverlapCircleAll(this.transform.position, SimulationOptions.ViewDistance, foodTrailLayerMask);
             for (int i = 0; i < foodTrails.Length; i++)
             {
                 Vector2 closest = foodTrails[i].transform.position;
                 float enclosedAngle = CalcAngle(this.XPos, this.YPos, closest.x, closest.y);
                 float relativeAngle = this.lookingDirection - enclosedAngle;
 
-                if (Mathf.Abs(relativeAngle) <= viewAngle / 2)
+                if (Mathf.Abs(relativeAngle) <= SimulationOptions.ViewAngle / 2)
                 {
                     List<Vector2> tempList = foodTrails[i].gameObject.GetComponent<AntDroppedCell>().prevTrailPositions;
                     //Copy the list's content to a stack
@@ -194,7 +184,7 @@ namespace AntSimulation
         //Change the ant's direction
         private void ChangeDir()
         {
-            if (breadCrumbs.Count == MaxDistance)
+            if (breadCrumbs.Count == SimulationOptions.MaxDistance)
                 this.IsGoingBack = true;
 
             lookingDirection = See();
@@ -208,7 +198,7 @@ namespace AntSimulation
             //Rotates the ant
             this.transform.eulerAngles = Vector3.forward * Mathf.Rad2Deg * this.lookingDirection;
             //Calculates the new moveVector
-            this.moveVector.Set(speed * Mathf.Cos(this.lookingDirection), speed * Mathf.Sin(this.lookingDirection));
+            this.moveVector.Set(SimulationOptions.Speed * Mathf.Cos(this.lookingDirection), SimulationOptions.Speed * Mathf.Sin(this.lookingDirection));
             //Drop a breadCrumb if the ant isn't going back
             if (!this.IsGoingBack)
                 this.breadCrumbs.Push(this.transform.position);
