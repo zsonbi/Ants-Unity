@@ -22,14 +22,16 @@ namespace AntSimulation
         /// </summary>
         public float YPos { get => this.transform.position.y; }
 
-        private static GameObject antObj; //Ant prefab
+        private static GameObject workerAntObj; //Ant prefab
+        private static GameObject gypsyAntObj; //Ant prefab
 
         //-----------------------------------------------------
         //Runs when the script is loaded
         private void Awake()
         {
             //Loads in the ant prefab
-            antObj = Resources.Load<GameObject>("Prefabs/Ant");
+            workerAntObj = Resources.Load<GameObject>("Prefabs/Ant");
+            gypsyAntObj = Resources.Load<GameObject>("Prefabs/GypsyAnt");
         }
 
         //------------------------------------------------------
@@ -49,8 +51,14 @@ namespace AntSimulation
         //Adds a single ant to the colony
         private void AddAnt()
         {
-            Instantiate(antObj, this.transform.position, new Quaternion(), this.transform);
-
+            if (Random.Range(0.0f, 1.0f) <= SimulationOptions.GypsyRate)
+            {
+                Instantiate(gypsyAntObj, this.transform.position, new Quaternion(), this.transform);
+            }
+            else
+            {
+                Instantiate(workerAntObj, this.transform.position, new Quaternion(), this.transform);
+            }
             this.AntCount++;
         }
 

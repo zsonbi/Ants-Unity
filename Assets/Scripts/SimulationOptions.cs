@@ -41,6 +41,9 @@ namespace AntSimulation
         [Slider]
         internal static int StartingPopulation = 100; //The starting number of ants
 
+        [Slider]
+        internal static float GypsyRate = 0.4f;
+
         [CheckBox]
         internal static bool SpawnAntWhenFoodIsBroughtHome = false;
     }
