@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 7528416435293399838}
   - component: {fileID: 8726488445773886300}
   - component: {fileID: 6511987591675645058}
-  - component: {fileID: 2590657114486579922}
-  m_Layer: 0
-  m_Name: Ant
+  - component: {fileID: 8084611301264565979}
+  m_Layer: 6
+  m_Name: WorkerAnt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -110,7 +110,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 6.11, y: 4.92}
   m_EdgeRadius: 0
---- !u!114 &2590657114486579922
+--- !u!114 &8084611301264565979
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -119,6 +119,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 919858043743366922}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfbe24b8e95cdad48a0069ccd2c5673b, type: 3}
+  m_Script: {fileID: 11500000, guid: 876c9d5fbc3a5a44e85043da2763789b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

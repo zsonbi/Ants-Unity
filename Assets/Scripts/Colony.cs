@@ -7,6 +7,8 @@ namespace AntSimulation
     /// </summary>
     internal class Colony : MonoBehaviour
     {
+        public short colonyID;
+
         /// <summary>
         /// The number of ants the colony has
         /// </summary>
@@ -23,15 +25,17 @@ namespace AntSimulation
         public float YPos { get => this.transform.position.y; }
 
         private static GameObject workerAntObj; //Ant prefab
-        private static GameObject gypsyAntObj; //Ant prefab
+        private static GameObject gypsyAntObj;
+        private static GameObject wingedAntObj;
 
         //-----------------------------------------------------
         //Runs when the script is loaded
         private void Awake()
         {
             //Loads in the ant prefab
-            workerAntObj = Resources.Load<GameObject>("Prefabs/Ant");
+            workerAntObj = Resources.Load<GameObject>("Prefabs/WorkerAnt");
             gypsyAntObj = Resources.Load<GameObject>("Prefabs/GypsyAnt");
+            wingedAntObj = Resources.Load<GameObject>("Prefabs/WingedAnt");
         }
 
         //------------------------------------------------------
@@ -51,14 +55,22 @@ namespace AntSimulation
         //Adds a single ant to the colony
         private void AddAnt()
         {
-            if (Random.Range(0.0f, 1.0f) <= SimulationOptions.GypsyRate)
+            Ant ant;
+            float randFloat = Random.Range(0.0f, 1.0f);
+
+            if (randFloat <= SimulationOptions.GypsyRate)
             {
-                Instantiate(gypsyAntObj, this.transform.position, new Quaternion(), this.transform);
+                ant = Instantiate(gypsyAntObj, this.transform.position, new Quaternion(), this.transform).GetComponent<Ant>();
+            }
+            else if (randFloat <= SimulationOptions.WingedRate + SimulationOptions.GypsyRate)
+            {
+                ant = Instantiate(wingedAntObj, this.transform.position, new Quaternion(), this.transform).GetComponent<Ant>();
             }
             else
             {
-                Instantiate(workerAntObj, this.transform.position, new Quaternion(), this.transform);
+                ant = Instantiate(workerAntObj, this.transform.position, new Quaternion(), this.transform).GetComponent<Ant>();
             }
+            ant.SetColony(this.colonyID);
             this.AntCount++;
         }
 

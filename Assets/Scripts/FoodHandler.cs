@@ -12,6 +12,8 @@ namespace AntSimulation
 
         private static GameObject foodPrefab; //Food prefab
 
+        private static Transform foodHandlerTransForm;
+
         //-----------------------------------------------------
         //Runs when the script is loaded
         private void Awake()
@@ -20,6 +22,7 @@ namespace AntSimulation
             foodPrefab = Resources.Load<GameObject>("Prefabs/Food");
             if (borderFood)
                 FillBordersWithFood();
+            foodHandlerTransForm = this.transform;
         }
 
         //--------------------------------------------------------
@@ -35,6 +38,11 @@ namespace AntSimulation
                     Instantiate(foodPrefab, mousePos, new Quaternion(), this.transform);
                 }
             }
+        }
+
+        internal static void AddFood(float xPos, float yPos)
+        {
+            Instantiate(foodPrefab, new Vector2(xPos, yPos), new Quaternion(), foodHandlerTransForm);
         }
 
         //---------------------------------------------------------------

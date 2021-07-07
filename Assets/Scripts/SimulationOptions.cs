@@ -27,6 +27,9 @@ namespace AntSimulation
         internal static float PickUpDist = 3f; //The range of the food pickup
 
         [Slider]
+        internal static float AttackRange = 5f;
+
+        [Slider]
         internal static float Speed = 0.5f; //The speed of the ant (The length of the vector)
 
         [Slider]
@@ -42,7 +45,10 @@ namespace AntSimulation
         internal static int StartingPopulation = 100; //The starting number of ants
 
         [Slider]
-        internal static float GypsyRate = 0.4f;
+        internal static float GypsyRate = 0.2f;
+
+        [Slider]
+        internal static float WingedRate = 0.15f;
 
         [CheckBox]
         internal static bool SpawnAntWhenFoodIsBroughtHome = false;

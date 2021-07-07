@@ -12,17 +12,21 @@ namespace AntSimulation
 
         private static int foodLayerMask; //The mask for the foodLayer
         private static int foodTrailLayerMask; //The mask for the foodTrailLayer
+        internal static int antLayerMask;
         private static Transform DroppedCellParent; //Pointer to the DroppedCells collection (So we can organize them logically)
         private static GameObject DroppedCellPrefab; //Prefab for the droppedCellObject
 
-        private float lookingDirection = 0f; //The direction which the ant is looking (in radian)
-        private float colXCoord; //The x coordinate of the colony
-        private float colYCoord; //The y coordinate of the colony
-        private Stack<Vector2> breadCrumbs = new Stack<Vector2>(); //The cells location which the ant drops when it doesn't carry any food
-        private Queue<AntDroppedCell> trail = new Queue<AntDroppedCell>(); //The objects which are showed visually as the dropped cells
-        private Vector2 moveVector = new Vector2(); //The vector which the ant should move when Move() is called
-        private List<Vector2> previousFoodTrails = new List<Vector2>(); //The coordinates of the previous foodTrails so it can be passed to the next foodTrail (it's may size is equal to the numberOfBreadCrumbs)
-        private Stack<Vector2> nextFoodTrail = new Stack<Vector2>(); //This stack is filled when the ant sees a foodTrail
+        protected float viewDistance = SimulationOptions.ViewDistance;
+        protected float lookingDirection = 0f; //The direction which the ant is looking (in radian)
+        protected float colXCoord; //The x coordinate of the colony
+        protected float colYCoord; //The y coordinate of the colony
+        protected Stack<Vector2> breadCrumbs = new Stack<Vector2>(); //The cells location which the ant drops when it doesn't carry any food
+        protected Queue<AntDroppedCell> trail = new Queue<AntDroppedCell>(); //The objects which are showed visually as the dropped cells
+        protected Vector2 moveVector = new Vector2(); //The vector which the ant should move when Move() is called
+        protected List<Vector2> previousFoodTrails = new List<Vector2>(); //The coordinates of the previous foodTrails so it can be passed to the next foodTrail (it's may size is equal to the numberOfBreadCrumbs)
+        protected Stack<Vector2> nextFoodTrail = new Stack<Vector2>(); //This stack is filled when the ant sees a foodTrail
+
+        public short ColonyID { get; private set; } = -1;
 
         /// <summary>
         /// Returns the x pos of the ant
@@ -43,6 +47,10 @@ namespace AntSimulation
         /// Gets if the ant is going back
         /// </summary>
         public bool IsGoingBack { get; private set; }
+
+        public float speed { get; protected set; }
+        public float health { get; protected set; }
+        public float attack { get; protected set; }
 
         //---------------------------------------------------------
         // Start is called before the first frame update
@@ -71,6 +79,7 @@ namespace AntSimulation
             //Fills the cache
             foodLayerMask = 1 << LayerMask.NameToLayer("foodLayer");
             foodTrailLayerMask = 1 << LayerMask.NameToLayer("foodTrailLayer");
+            antLayerMask = 1 << LayerMask.NameToLayer("antLayer");
             DroppedCellParent = GameObject.Find("AntDroppedCells").transform;
             DroppedCellPrefab = Resources.Load<GameObject>("Prefabs/AntDroppedCell");
         }
@@ -93,34 +102,41 @@ namespace AntSimulation
             this.trail.Enqueue(Trailcache);
         }
 
+        //---------------------------------------------------------
+        //Returns a direction to the last breadCrumb
+        protected float GetDirectionToHome()
+        {
+            if (CalcVectorLength(this.XPos, this.YPos, colXCoord, colYCoord) < 5f)
+            {
+                this.GotHome();
+                return this.See();
+            }
+            if (this.breadCrumbs.Count > 0)
+            {
+                Vector2 breadCrumb = this.breadCrumbs.Pop();
+                return CalcAngle(this.XPos, this.YPos, breadCrumb.x, breadCrumb.y);
+            }
+            else
+            {
+                return CalcAngle(this.XPos, this.YPos, colXCoord, colYCoord);
+            }
+        }
+
         //---------------------------------------------
         //Gets the direction which the ant should go
-        private float See()
+        protected virtual float See()
         {
             //If the ant is going back get the last breadCrumb's angle
             if (this.IsGoingBack)
             {
-                if (CalcVectorLength(this.XPos, this.YPos, colXCoord, colYCoord) < 5f)
-                {
-                    this.GotHome();
-                    return this.See();
-                }
-                if (this.breadCrumbs.Count > 0)
-                {
-                    Vector2 breadCrumb = this.breadCrumbs.Pop();
-                    return CalcAngle(this.XPos, this.YPos, breadCrumb.x, breadCrumb.y);
-                }
-                else
-                {
-                    return CalcAngle(this.XPos, this.YPos, colXCoord, colYCoord);
-                }
+                return GetDirectionToHome();
             }
 
             //Otherwise look for food and pick it up if is close enough
             float closestDist = float.MaxValue;
             float BestAngle = float.MinValue;
             //Get all of the food objects in a circle
-            Collider2D[] foodsInCircle = Physics2D.OverlapCircleAll(this.transform.position, SimulationOptions.ViewDistance, foodLayerMask);
+            Collider2D[] foodsInCircle = Physics2D.OverlapCircleAll(this.transform.position, viewDistance, foodLayerMask);
             for (int i = 0; i < foodsInCircle.Length; i++)
             {
                 Vector2 closest = foodsInCircle[i].transform.position;
@@ -157,7 +173,7 @@ namespace AntSimulation
             }
 
             //Get all the foodTrails in a circle
-            Collider2D[] foodTrails = Physics2D.OverlapCircleAll(this.transform.position, SimulationOptions.ViewDistance, foodTrailLayerMask);
+            Collider2D[] foodTrails = Physics2D.OverlapCircleAll(this.transform.position, viewDistance, foodTrailLayerMask);
             for (int i = 0; i < foodTrails.Length; i++)
             {
                 Vector2 closest = foodTrails[i].transform.position;
@@ -198,7 +214,7 @@ namespace AntSimulation
             //Rotates the ant
             this.transform.eulerAngles = Vector3.forward * Mathf.Rad2Deg * this.lookingDirection;
             //Calculates the new moveVector
-            this.moveVector.Set(SimulationOptions.Speed * Mathf.Cos(this.lookingDirection), SimulationOptions.Speed * Mathf.Sin(this.lookingDirection));
+            this.moveVector.Set(this.speed * Mathf.Cos(this.lookingDirection), this.speed * Mathf.Sin(this.lookingDirection));
             //Drop a breadCrumb if the ant isn't going back
             if (!this.IsGoingBack)
                 this.breadCrumbs.Push(this.transform.position);
@@ -217,6 +233,7 @@ namespace AntSimulation
         {
             this.HasFood = true;
             this.IsGoingBack = true;
+            this.speed /= 1.7f;
         }
 
         //---------------------------------------------------------
@@ -228,6 +245,7 @@ namespace AntSimulation
                 this.lookingDirection = (this.lookingDirection - Mathf.PI) % (Mathf.PI * 2);
                 this.GetComponentInParent<Colony>().BroughtHomeFood();
                 this.previousFoodTrails.Clear();
+                this.speed *= 1.7f;
             }
 
             this.HasFood = false;
@@ -244,7 +262,7 @@ namespace AntSimulation
         /// <param name="x2">x coord of the end of the vector</param>
         /// <param name="y2">y coord of the end of the vector</param>
         /// <returns>the angle</returns>
-        private static float CalcAngle(float x1, float y1, float x2, float y2)
+        protected static float CalcAngle(float x1, float y1, float x2, float y2)
         {
             return Mathf.Atan2(y2 - y1, x2 - x1);
         }
@@ -258,9 +276,25 @@ namespace AntSimulation
         /// <param name="x2">x coord of the end of the vector</param>
         /// <param name="y2">y coord of the end of the vector</param>
         /// <returns>the length of the vector</returns>
-        private static float CalcVectorLength(float x1, float y1, float x2, float y2)
+        protected static float CalcVectorLength(float x1, float y1, float x2, float y2)
         {
             return Mathf.Sqrt(Mathf.Pow(x2 - x1, 2) + Mathf.Pow(y2 - y1, 2));
+        }
+
+        internal void UnderAttack(float attack)
+        {
+            this.health -= attack;
+
+            if (this.health <= 0f)
+            {
+                if (HasFood)
+                {
+                    FoodHandler.AddFood(this.XPos, this.YPos);
+                    Debug.Log("Dead dropped food");
+                }
+                this.GetComponentInParent<Colony>().AntCount--;
+                Destroy(this.gameObject);
+            }
         }
 
         //----------------------------------------------------------------------
@@ -268,6 +302,14 @@ namespace AntSimulation
         private void OnBecameInvisible()
         {
             lookingDirection += Mathf.PI;
+        }
+
+        public void SetColony(short colID)
+        {
+            if (this.ColonyID == -1)
+                this.ColonyID = colID;
+            else
+                throw new System.Exception("You cannot set new colony id to an ant they're not traitors");
         }
     }
 }
