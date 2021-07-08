@@ -82,6 +82,9 @@ namespace AntSimulation
                     this.color = new Color(0f, 0f, 1f, 1f);
                     this.gameObject.layer = 0;
                     this.circleColliderCache.enabled = false;
+                    this.timeToLive = (short)(maxTimeToLive / 2);
+                    if (SimulationOptions.DropBreadCrumbs)
+                        this.gameObject.SetActive(true);
                     break;
 
                 //FoodTrail
@@ -94,14 +97,16 @@ namespace AntSimulation
                     {
                         this.prevTrailPositions.Add(item);
                     }
+                    this.timeToLive = maxTimeToLive;
+                    this.gameObject.SetActive(true);
                     break;
 
                 default:
                     break;
             }
-            this.timeToLive = maxTimeToLive;
+
             this.transform.position = new Vector3(newPos.x, newPos.y, 15);
-            this.gameObject.SetActive(true);
+
             this.spriteRendererCache.color = color;
         }
     }

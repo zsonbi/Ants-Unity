@@ -59,6 +59,7 @@ public class ColonySetup : MonoBehaviour
     /// </summary>
     public void SaveAndClose()
     {
+        AntSimulation.AntSimulation.colonyPositions.Clear();
         for (int i = 0; i < colonies.Count - 1; i++)
         {
             AntSimulation.AntSimulation.colonyPositions.Add(colonies[i].transform.position);

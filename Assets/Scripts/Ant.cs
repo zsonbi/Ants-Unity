@@ -15,6 +15,7 @@ namespace AntSimulation
         internal static int antLayerMask;
         private static Transform DroppedCellParent; //Pointer to the DroppedCells collection (So we can organize them logically)
         private static GameObject DroppedCellPrefab; //Prefab for the droppedCellObject
+        public GameObject food;
 
         protected float viewDistance = SimulationOptions.ViewDistance;
         protected float lookingDirection = 0f; //The direction which the ant is looking (in radian)
@@ -66,6 +67,7 @@ namespace AntSimulation
             {
                 this.trail.Enqueue(Instantiate(DroppedCellPrefab, this.transform.position, new Quaternion(), DroppedCellParent).GetComponent<AntDroppedCell>());
             }
+
             //Sets the methods to periodic calls
             InvokeRepeating("ChangeDir", 0, SimulationOptions.DirChangeTimer);
             InvokeRepeating("DropBreadCrumb", 0, 0.9f);
@@ -234,6 +236,7 @@ namespace AntSimulation
             this.HasFood = true;
             this.IsGoingBack = true;
             this.speed /= 1.7f;
+            this.food.SetActive(true);
         }
 
         //---------------------------------------------------------
@@ -246,6 +249,7 @@ namespace AntSimulation
                 this.GetComponentInParent<Colony>().BroughtHomeFood();
                 this.previousFoodTrails.Clear();
                 this.speed *= 1.7f;
+                this.food.SetActive(false);
             }
 
             this.HasFood = false;
