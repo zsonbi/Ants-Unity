@@ -64,6 +64,6 @@ namespace AntSimulation
         internal static bool SpawnAntWhenFoodIsBroughtHome = true;
 
         [CheckBox]
-        internal static bool DropBreadCrumbs = false;
+        internal static bool DropBreadCrumbs = true;
     }
 }

@@ -82,7 +82,7 @@ namespace AntSimulation
                     this.color = new Color(0f, 0f, 1f, 1f);
                     this.gameObject.layer = 0;
                     this.circleColliderCache.enabled = false;
-                    this.timeToLive = (short)(maxTimeToLive / 2);
+                    this.timeToLive = (short)(maxTimeToLive);
                     if (SimulationOptions.DropBreadCrumbs)
                         this.gameObject.SetActive(true);
                     break;

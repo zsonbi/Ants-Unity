@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AntSimulation
 {
@@ -7,12 +8,20 @@ namespace AntSimulation
     /// </summary>
     internal class Colony : MonoBehaviour
     {
-        public short colonyID;
+        private float foodAmount;
+        private short populatioSize = 0;
+
+        internal short colonyID;
 
         /// <summary>
         /// The number of ants the colony has
         /// </summary>
-        public short AntCount = 0;
+        internal short AntCount { get => populatioSize; set { populatioSize = value; populationSizeText.text = populatioSize.ToString(); } }
+
+        private float FoodReserve { get => foodAmount; set { foodAmount = value; foodAmountText.text = Mathf.Round(foodAmount).ToString(); } }
+
+        public Text populationSizeText;
+        public Text foodAmountText;
 
         /// <summary>
         /// The x coordinate of the colony
@@ -23,8 +32,6 @@ namespace AntSimulation
         /// The y coordinate of the colony
         /// </summary>
         public float YPos { get => this.transform.position.y; }
-
-        public float FoodReserve;
 
         private static GameObject workerAntObj; //Ant prefab
         private static GameObject gypsyAntObj;
