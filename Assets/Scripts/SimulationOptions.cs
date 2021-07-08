@@ -21,7 +21,7 @@ namespace AntSimulation
         internal static float WingedAntHungerMultiplier = 1.5f;
         internal static float WorkerAntHungerMultiplier = 2f;
         internal static float GypsyAntHungerMultiplier = 1.6f;
-        internal static float DefaultColonyFoodReserveSize = 200f;
+        internal static float DefaultColonyFoodReserveSize = 500f;
 
         //Changeable parameters
         [Slider]
@@ -61,7 +61,7 @@ namespace AntSimulation
         internal static float MaxHunger = 2000f;
 
         [CheckBox]
-        internal static bool SpawnAntWhenFoodIsBroughtHome = false;
+        internal static bool SpawnAntWhenFoodIsBroughtHome = true;
 
         [CheckBox]
         internal static bool DropBreadCrumbs = false;

@@ -23,7 +23,7 @@ namespace AntSimulation
             if (borderFood)
                 FillBordersWithFood();
             foodHandlerTransForm = this.transform;
-            InvokeRepeating("SpawnFoodAtRandom", 0, 0.1f);
+            InvokeRepeating("SpawnFoodAtRandom", 0, 4f);
         }
 
         //--------------------------------------------------------
@@ -48,11 +48,18 @@ namespace AntSimulation
 
         private void SpawnFoodAtRandom()
         {
-            float xPos = Random.Range(0, Screen.width);
-            float yPos = Random.Range(0, Screen.height);
+            float xPos = Random.Range(10, Screen.width - 10);
+            float yPos = Random.Range(10, Screen.height - 10);
 
             Vector2 convertedPos = Camera.main.ScreenToWorldPoint(new Vector2(xPos, yPos));
-            Instantiate(foodPrefab, convertedPos, new Quaternion(), this.transform);
+
+            for (byte i = 0; i < 5; i++)
+            {
+                for (byte j = 0; j < 5; j++)
+                {
+                    Instantiate(foodPrefab, new Vector2(convertedPos.x + i, convertedPos.y + j), new Quaternion(), this.transform);
+                }
+            }
         }
 
         //---------------------------------------------------------------

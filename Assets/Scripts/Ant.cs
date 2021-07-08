@@ -265,7 +265,7 @@ namespace AntSimulation
                 this.Speed *= 1.7f;
                 this.food.SetActive(false);
             }
-            this.hunger = this.maxHunger * this.parentColony.TakeFood((this.maxHunger - this.hunger) / this.maxHunger);
+            this.hunger = this.maxHunger * this.parentColony.TakeFood((this.maxHunger - this.hunger) / this.maxHunger * 5);
             this.HasFood = false;
             this.IsGoingBack = false;
             this.breadCrumbs.Clear();

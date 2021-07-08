@@ -24,7 +24,7 @@ namespace AntSimulation
         /// </summary>
         public float YPos { get => this.transform.position.y; }
 
-        public float FoodReserve { get; private set; }
+        public float FoodReserve;
 
         private static GameObject workerAntObj; //Ant prefab
         private static GameObject gypsyAntObj;
@@ -83,8 +83,12 @@ namespace AntSimulation
         /// </summary>
         internal void BroughtHomeFood()
         {
-            if (SimulationOptions.SpawnAntWhenFoodIsBroughtHome)
+            this.FoodReserve += 4f;
+            if (SimulationOptions.SpawnAntWhenFoodIsBroughtHome && this.FoodReserve > 500f)
+            {
                 AddAnt();
+                FoodReserve -= 3f;
+            }
         }
 
         //--------------------------------------------------------------
