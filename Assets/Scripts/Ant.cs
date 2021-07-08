@@ -10,12 +10,15 @@ namespace AntSimulation
     {
         //Cache
 
+        public GameObject food;
+        private Colony parentColony;
         private static int foodLayerMask; //The mask for the foodLayer
         private static int foodTrailLayerMask; //The mask for the foodTrailLayer
+
         internal static int antLayerMask;
         private static Transform DroppedCellParent; //Pointer to the DroppedCells collection (So we can organize them logically)
         private static GameObject DroppedCellPrefab; //Prefab for the droppedCellObject
-        public GameObject food;
+        private float consumption;
 
         protected float viewDistance = SimulationOptions.ViewDistance;
         protected float lookingDirection = 0f; //The direction which the ant is looking (in radian)
@@ -26,6 +29,9 @@ namespace AntSimulation
         protected Vector2 moveVector = new Vector2(); //The vector which the ant should move when Move() is called
         protected List<Vector2> previousFoodTrails = new List<Vector2>(); //The coordinates of the previous foodTrails so it can be passed to the next foodTrail (it's may size is equal to the numberOfBreadCrumbs)
         protected Stack<Vector2> nextFoodTrail = new Stack<Vector2>(); //This stack is filled when the ant sees a foodTrail
+        protected float maxHunger;
+
+        protected float maxHealth;
 
         public short ColonyID { get; private set; } = -1;
 
@@ -49,9 +55,11 @@ namespace AntSimulation
         /// </summary>
         public bool IsGoingBack { get; private set; }
 
-        public float speed { get; protected set; }
-        public float health { get; protected set; }
-        public float attack { get; protected set; }
+        public float hunger;
+
+        public float Speed { get; protected set; }
+        public float Health; //{ get; private set; }
+        public float Attack { get; protected set; }
 
         //---------------------------------------------------------
         // Start is called before the first frame update
@@ -62,12 +70,16 @@ namespace AntSimulation
             this.colYCoord = transform.position.y;
             //Generate a random direction
             this.lookingDirection = Random.Range(-Mathf.PI, Mathf.PI);
+            this.hunger = maxHunger;
+            this.Health = maxHealth;
+            this.consumption = this.consumption = 1f + this.Speed * this.Attack / 10f;
             //Fills the trail queue
             for (int i = 0; i < SimulationOptions.NumberOfBreadCrumbs; i++)
             {
                 this.trail.Enqueue(Instantiate(DroppedCellPrefab, this.transform.position, new Quaternion(), DroppedCellParent).GetComponent<AntDroppedCell>());
             }
-
+            //Gets the colony which the ant belongs to
+            this.parentColony = this.GetComponentInParent<Colony>();
             //Sets the methods to periodic calls
             InvokeRepeating("ChangeDir", 0, SimulationOptions.DirChangeTimer);
             InvokeRepeating("DropBreadCrumb", 0, 0.9f);
@@ -202,7 +214,7 @@ namespace AntSimulation
         //Change the ant's direction
         private void ChangeDir()
         {
-            if (breadCrumbs.Count == SimulationOptions.MaxDistance)
+            if (hunger <= maxHunger / 2)
                 this.IsGoingBack = true;
 
             lookingDirection = See();
@@ -216,7 +228,7 @@ namespace AntSimulation
             //Rotates the ant
             this.transform.eulerAngles = Vector3.forward * Mathf.Rad2Deg * this.lookingDirection;
             //Calculates the new moveVector
-            this.moveVector.Set(this.speed * Mathf.Cos(this.lookingDirection), this.speed * Mathf.Sin(this.lookingDirection));
+            this.moveVector.Set(this.Speed * Mathf.Cos(this.lookingDirection), this.Speed * Mathf.Sin(this.lookingDirection));
             //Drop a breadCrumb if the ant isn't going back
             if (!this.IsGoingBack)
                 this.breadCrumbs.Push(this.transform.position);
@@ -227,6 +239,7 @@ namespace AntSimulation
         private void Move()
         {
             this.transform.position = new Vector3(this.transform.position.x + moveVector.x, this.transform.position.y + moveVector.y);
+            Consume();
         }
 
         //-----------------------------------------------------
@@ -235,7 +248,7 @@ namespace AntSimulation
         {
             this.HasFood = true;
             this.IsGoingBack = true;
-            this.speed /= 1.7f;
+            this.Speed /= 1.7f;
             this.food.SetActive(true);
         }
 
@@ -246,15 +259,71 @@ namespace AntSimulation
             if (HasFood)
             {
                 this.lookingDirection = (this.lookingDirection - Mathf.PI) % (Mathf.PI * 2);
-                this.GetComponentInParent<Colony>().BroughtHomeFood();
+                this.parentColony.BroughtHomeFood();
+
                 this.previousFoodTrails.Clear();
-                this.speed *= 1.7f;
+                this.Speed *= 1.7f;
                 this.food.SetActive(false);
             }
-
+            this.hunger = this.maxHunger * this.parentColony.TakeFood((this.maxHunger - this.hunger) / this.maxHunger);
             this.HasFood = false;
             this.IsGoingBack = false;
             this.breadCrumbs.Clear();
+        }
+
+        private void Consume()
+        {
+            this.hunger -= consumption;
+            if (hunger <= 0)
+            {
+                TakeDamage((hunger * -1) / 100);
+            }
+            else
+                Heal();
+        }
+
+        internal void TakeDamage(float attack)
+        {
+            this.Health -= attack;
+
+            if (this.Health <= 0f)
+            {
+                if (this.HasFood)
+                {
+                    FoodHandler.AddFood(this.XPos, this.YPos);
+                    Debug.Log("Dead dropped food");
+                }
+                this.GetComponentInParent<Colony>().AntCount--;
+                FoodHandler.AddFood(this.XPos, this.YPos);
+                Destroy(this.gameObject);
+            }
+        }
+
+        private void Heal()
+        {
+            if (this.Health != this.maxHealth)
+            {
+                this.Health += 0.1f;
+                if (this.Health > this.maxHealth)
+                {
+                    this.Health = this.maxHealth;
+                }
+            }
+        }
+
+        //----------------------------------------------------------------------
+        //When the ant goes out of the camera reverse the move direction
+        private void OnBecameInvisible()
+        {
+            this.lookingDirection += Mathf.PI;
+        }
+
+        public void SetColony(short colID)
+        {
+            if (this.ColonyID == -1)
+                this.ColonyID = colID;
+            else
+                throw new System.Exception("You cannot set new colony id to an ant they're not traitors");
         }
 
         //-----------------------------------------------------------------------
@@ -283,37 +352,6 @@ namespace AntSimulation
         protected static float CalcVectorLength(float x1, float y1, float x2, float y2)
         {
             return Mathf.Sqrt(Mathf.Pow(x2 - x1, 2) + Mathf.Pow(y2 - y1, 2));
-        }
-
-        internal void UnderAttack(float attack)
-        {
-            this.health -= attack;
-
-            if (this.health <= 0f)
-            {
-                if (HasFood)
-                {
-                    FoodHandler.AddFood(this.XPos, this.YPos);
-                    Debug.Log("Dead dropped food");
-                }
-                this.GetComponentInParent<Colony>().AntCount--;
-                Destroy(this.gameObject);
-            }
-        }
-
-        //----------------------------------------------------------------------
-        //When the ant goes out of the camera reverse the move direction
-        private void OnBecameInvisible()
-        {
-            lookingDirection += Mathf.PI;
-        }
-
-        public void SetColony(short colID)
-        {
-            if (this.ColonyID == -1)
-                this.ColonyID = colID;
-            else
-                throw new System.Exception("You cannot set new colony id to an ant they're not traitors");
         }
     }
 }

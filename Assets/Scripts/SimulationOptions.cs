@@ -16,6 +16,13 @@ namespace AntSimulation
 
     internal static class SimulationOptions
     {
+        //Constants
+
+        internal static float WingedAntHungerMultiplier = 1.5f;
+        internal static float WorkerAntHungerMultiplier = 2f;
+        internal static float GypsyAntHungerMultiplier = 1.6f;
+        internal static float DefaultColonyFoodReserveSize = 200f;
+
         //Changeable parameters
         [Slider]
         internal static int MaxDistance = 300; //The number of breadCrumbs the ant should leave before tracing them back
@@ -49,6 +56,9 @@ namespace AntSimulation
 
         [Slider]
         internal static float WingedRate = 0.15f;
+
+        [Slider]
+        internal static float MaxHunger = 2000f;
 
         [CheckBox]
         internal static bool SpawnAntWhenFoodIsBroughtHome = false;

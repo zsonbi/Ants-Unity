@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using System;
 
 /// <summary>
 /// This object handles the options for the simulation
@@ -20,18 +21,21 @@ public class Options : MonoBehaviour
         {
             foreach (var field in typeof(SimulationOptions).GetRuntimeFields())
             {
-                if (field.CustomAttributes.First().AttributeType == typeof(SliderAttribute))
+                foreach (var customAttribute in field.CustomAttributes)
                 {
-                    sliderOptions.Add(field.Name, field);
-                }
-                else if (field.CustomAttributes.First().AttributeType == typeof(CheckBoxAttribute))
-                {
-                    checkBoxOptions.Add(field.Name, field);
-                }
-                else
-                {
-                    System.Console.WriteLine("-----WARNING-----");
-                    System.Console.WriteLine("No attribute set in simulation options this may lead to errors");
+                    if (customAttribute.AttributeType == typeof(SliderAttribute))
+                    {
+                        sliderOptions.Add(field.Name, field);
+                    }
+                    else if (customAttribute.AttributeType == typeof(CheckBoxAttribute))
+                    {
+                        checkBoxOptions.Add(field.Name, field);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("-----WARNING-----");
+                        System.Console.WriteLine("No attribute set in simulation options this may lead to errors");
+                    }
                 }
             }
         }

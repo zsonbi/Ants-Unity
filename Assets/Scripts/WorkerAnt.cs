@@ -8,9 +8,10 @@ namespace AntSimulation
     {
         public WorkerAnt()
         {
-            base.speed = SimulationOptions.Speed;
-            base.health = 100f;
-            base.attack = 2f;
+            base.Speed = SimulationOptions.Speed;
+            base.maxHealth = 100f;
+            base.Attack = 2f;
+            base.maxHunger = SimulationOptions.MaxHunger * SimulationOptions.WorkerAntHungerMultiplier;
         }
     }
 }

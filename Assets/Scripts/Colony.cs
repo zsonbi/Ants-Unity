@@ -24,6 +24,8 @@ namespace AntSimulation
         /// </summary>
         public float YPos { get => this.transform.position.y; }
 
+        public float FoodReserve { get; private set; }
+
         private static GameObject workerAntObj; //Ant prefab
         private static GameObject gypsyAntObj;
         private static GameObject wingedAntObj;
@@ -36,6 +38,7 @@ namespace AntSimulation
             workerAntObj = Resources.Load<GameObject>("Prefabs/WorkerAnt");
             gypsyAntObj = Resources.Load<GameObject>("Prefabs/GypsyAnt");
             wingedAntObj = Resources.Load<GameObject>("Prefabs/WingedAnt");
+            FoodReserve = SimulationOptions.DefaultColonyFoodReserveSize;
         }
 
         //------------------------------------------------------
@@ -82,6 +85,15 @@ namespace AntSimulation
         {
             if (SimulationOptions.SpawnAntWhenFoodIsBroughtHome)
                 AddAnt();
+        }
+
+        //--------------------------------------------------------------
+        internal float TakeFood(float amount)
+        {
+            if (FoodReserve <= 0)
+                return -0.1f;
+            FoodReserve -= amount;
+            return 1f;
         }
     }
 }

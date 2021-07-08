@@ -6,9 +6,10 @@ namespace AntSimulation
     {
         public GypsyAnt()
         {
-            base.speed = SimulationOptions.Speed * 0.7f;
-            base.health = 200f;
-            base.attack = 20f;
+            base.Speed = SimulationOptions.Speed * 0.7f;
+            base.maxHealth = 200f;
+            base.Attack = 20f;
+            base.maxHunger = SimulationOptions.MaxHunger * SimulationOptions.GypsyAntHungerMultiplier;
         }
 
         protected override float See()
@@ -26,8 +27,8 @@ namespace AntSimulation
 
                     if (distance <= SimulationOptions.AttackRange)
                     {
-                        ant.UnderAttack(this.attack);
-                        this.UnderAttack(ant.attack);
+                        ant.TakeDamage(this.Attack);
+                        this.TakeDamage(ant.Attack);
                         return CalcAngle(this.XPos, this.YPos, nearbyAnts[i].transform.position.x, nearbyAnts[i].transform.position.y);
                     }
                     else if (closestEnemy > distance)
@@ -39,6 +40,8 @@ namespace AntSimulation
             }
             if (closestEnemy != float.MaxValue)
                 return bestAngle;
+            else if (base.IsGoingBack)
+                return GetDirectionToHome();
             else
                 return base.lookingDirection += UnityEngine.Random.Range(-0.4f, 0.4f);
         }
