@@ -83,6 +83,7 @@ namespace AntSimulation
                     this.gameObject.layer = 0;
                     this.circleColliderCache.enabled = false;
                     this.timeToLive = (short)(maxTimeToLive);
+                    //Should it show up
                     if (SimulationOptions.DropBreadCrumbs)
                         this.gameObject.SetActive(true);
                     break;

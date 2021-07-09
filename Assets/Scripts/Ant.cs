@@ -10,26 +10,28 @@ namespace AntSimulation
     {
         //Cache
 
-        public GameObject food;
-        private Colony parentColony;
+        public GameObject food; //The food in the ant's mouth
+        private Colony parentColony; //The colony of the ant's
         private static int foodLayerMask; //The mask for the foodLayer
         private static int foodTrailLayerMask; //The mask for the foodTrailLayer
-
-        internal static int antLayerMask;
+        internal static int antLayerMask; //The mask for the antLayer
         private static Transform DroppedCellParent; //Pointer to the DroppedCells collection (So we can organize them logically)
         private static GameObject DroppedCellPrefab; //Prefab for the droppedCellObject
-        private float consumption;
+        private float consumption; //Calculated consumption for every move
 
-        protected float viewDistance = SimulationOptions.ViewDistance;
-        protected float lookingDirection = 0f; //The direction which the ant is looking (in radian)
+        //Constants
+
+        protected float viewDistance = SimulationOptions.ViewDistance; //The distance the ant can see
         protected float colXCoord; //The x coordinate of the colony
         protected float colYCoord; //The y coordinate of the colony
+        protected float maxHunger; //The maximum amount the ant can fill itself at the colony
+
+        protected float lookingDirection = 0f; //The direction which the ant is looking (in radian)
         protected Stack<Vector2> breadCrumbs = new Stack<Vector2>(); //The cells location which the ant drops when it doesn't carry any food
         protected Queue<AntDroppedCell> trail = new Queue<AntDroppedCell>(); //The objects which are showed visually as the dropped cells
         protected Vector2 moveVector = new Vector2(); //The vector which the ant should move when Move() is called
         protected List<Vector2> previousFoodTrails = new List<Vector2>(); //The coordinates of the previous foodTrails so it can be passed to the next foodTrail (it's may size is equal to the numberOfBreadCrumbs)
         protected Stack<Vector2> nextFoodTrail = new Stack<Vector2>(); //This stack is filled when the ant sees a foodTrail
-        protected float maxHunger;
 
         protected float maxHealth;
 
@@ -55,10 +57,24 @@ namespace AntSimulation
         /// </summary>
         public bool IsGoingBack { get; private set; }
 
-        public float hunger;
+        /// <summary>
+        /// The amount of food it has left
+        /// </summary>
+        public float hunger { get; private set; }
 
+        /// <summary>
+        /// Speed of the stupid ant
+        /// </summary>
         public float Speed { get; protected set; }
-        public float Health; //{ get; private set; }
+
+        /// <summary>
+        /// Remaining health of the ant
+        /// </summary>
+        public float Health { get; private set; }
+
+        /// <summary>
+        /// Attack of the ant
+        /// </summary>
         public float Attack { get; protected set; }
 
         //---------------------------------------------------------
@@ -271,6 +287,8 @@ namespace AntSimulation
             this.breadCrumbs.Clear();
         }
 
+        //-----------------------------------------------------------
+        //Consumes it's hunger a bit
         private void Consume()
         {
             this.hunger -= consumption;
@@ -282,12 +300,18 @@ namespace AntSimulation
                 Heal();
         }
 
+        //-------------------------------------------------------------------
+        /// <summary>
+        /// Makes the ant take damage
+        /// </summary>
+        /// <param name="attack">The amount of attack it recieved</param>
         internal void TakeDamage(float attack)
         {
             this.Health -= attack;
 
             if (this.Health <= 0f)
             {
+                //Drop the food if it was carrying one
                 if (this.HasFood)
                 {
                     FoodHandler.AddFood(this.XPos, this.YPos);
@@ -299,11 +323,14 @@ namespace AntSimulation
             }
         }
 
+        //--------------------------------------------------------------------
+        //Heal the ant by 0.1
         private void Heal()
         {
             if (this.Health != this.maxHealth)
             {
                 this.Health += 0.1f;
+                this.hunger -= 0.1f;
                 if (this.Health > this.maxHealth)
                 {
                     this.Health = this.maxHealth;
@@ -318,6 +345,12 @@ namespace AntSimulation
             this.lookingDirection += Mathf.PI;
         }
 
+        //-----------------------------------------------------------------
+        /// <summary>
+        /// Sets the ant's colony id to the number
+        /// </summary>
+        /// <param name="colID">the id</param>
+        /// <exception cref="Exception">When trying to set it again</exception>
         public void SetColony(short colID)
         {
             if (this.ColonyID == -1)

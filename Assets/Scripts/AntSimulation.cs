@@ -13,7 +13,7 @@ namespace AntSimulation
 
         private static GameObject colonyObj; //The colony prefab
 
-        private short nextID = 0;
+        private short nextID = 0; //The next colonyID
 
         //------------------------------------------------------------------------------
         //Runs when the script is loaded

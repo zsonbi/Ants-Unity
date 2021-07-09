@@ -14,16 +14,20 @@ namespace AntSimulation
     {
     }
 
+    /// <summary>
+    /// Stores the settings values for the simulation
+    /// </summary>
     internal static class SimulationOptions
     {
         //Constants
 
-        internal static float WingedAntHungerMultiplier = 1.5f;
-        internal static float WorkerAntHungerMultiplier = 2f;
-        internal static float GypsyAntHungerMultiplier = 1.6f;
-        internal static float DefaultColonyFoodReserveSize = 500f;
+        internal static readonly float WingedAntHungerMultiplier = 1.5f;
+        internal static readonly float WorkerAntHungerMultiplier = 2f;
+        internal static readonly float GypsyAntHungerMultiplier = 1.6f;
+        internal static readonly float DefaultColonyFoodReserveSize = 500f;
 
         //Changeable parameters
+
         [Slider]
         internal static int MaxDistance = 300; //The number of breadCrumbs the ant should leave before tracing them back
 

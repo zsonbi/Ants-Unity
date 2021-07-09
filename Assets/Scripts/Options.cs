@@ -16,6 +16,7 @@ public class Options : MonoBehaviour
     {
         if (sliderOptions.Count == 0)
         {
+            //Loads in the fields into dictionaries
             foreach (var field in typeof(SimulationOptions).GetRuntimeFields())
             {
                 foreach (var customAttribute in field.CustomAttributes)

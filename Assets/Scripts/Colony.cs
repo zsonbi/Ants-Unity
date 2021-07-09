@@ -8,9 +8,12 @@ namespace AntSimulation
     /// </summary>
     internal class Colony : MonoBehaviour
     {
-        private float foodAmount;
-        private short populatioSize = 0;
+        private float foodAmount; //The amount of food it has stored
+        private short populatioSize = 0; //The size of the population
 
+        /// <summary>
+        /// The ID of the colony
+        /// </summary>
         internal short colonyID;
 
         /// <summary>
@@ -18,7 +21,12 @@ namespace AntSimulation
         /// </summary>
         internal short AntCount { get => populatioSize; set { populatioSize = value; populationSizeText.text = populatioSize.ToString(); } }
 
+        /// <summary>
+        /// The amount of food it has left and updates the label of the colony
+        /// </summary>
         private float FoodReserve { get => foodAmount; set { foodAmount = value; foodAmountText.text = Mathf.Round(foodAmount).ToString(); } }
+
+        //Cache to the labels
 
         public Text populationSizeText;
         public Text foodAmountText;
@@ -99,6 +107,11 @@ namespace AntSimulation
         }
 
         //--------------------------------------------------------------
+        /// <summary>
+        /// Take food from the colony
+        /// </summary>
+        /// <param name="amount">the amount the ant took</param>
+        /// <returns>the fraction of the maxHunger it can fill itself up</returns>
         internal float TakeFood(float amount)
         {
             if (FoodReserve <= 0)
