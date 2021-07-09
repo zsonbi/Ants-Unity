@@ -1,10 +1,7 @@
 using UnityEngine;
 using AntSimulation;
-using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Linq;
-using System;
 
 /// <summary>
 /// This object handles the options for the simulation

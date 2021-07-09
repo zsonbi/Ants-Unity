@@ -34,7 +34,7 @@ namespace AntSimulation
         internal static float PickUpDist = 3f; //The range of the food pickup
 
         [Slider]
-        internal static float AttackRange = 5f;
+        internal static float AttackRange = 5f; //The attack range of the gypsies
 
         [Slider]
         internal static float Speed = 0.5f; //The speed of the ant (The length of the vector)
@@ -52,18 +52,18 @@ namespace AntSimulation
         internal static int StartingPopulation = 100; //The starting number of ants
 
         [Slider]
-        internal static float GypsyRate = 0.2f;
+        internal static float GypsyRate = 0.0f; //The rate which the gypsies are spawned
 
         [Slider]
-        internal static float WingedRate = 0.15f;
+        internal static float WingedRate = 0.0f; //The rate which the winged ants are spawned
 
         [Slider]
-        internal static float MaxHunger = 2000f;
+        internal static float MaxHunger = 2000f; //The amount of food which will be multiplied by the type multipliers
 
         [CheckBox]
-        internal static bool SpawnAntWhenFoodIsBroughtHome = true;
+        internal static bool SpawnAntWhenFoodIsBroughtHome = true; //Should the colonies spawn new ants when got the food
 
         [CheckBox]
-        internal static bool DropBreadCrumbs = true;
+        internal static bool DropBreadCrumbs = true; //Should the ants drop food
     }
 }
