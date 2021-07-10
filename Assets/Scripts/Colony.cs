@@ -14,7 +14,7 @@ namespace AntSimulation
         /// <summary>
         /// The ID of the colony
         /// </summary>
-        internal short colonyID;
+        public sbyte colonyID;
 
         /// <summary>
         /// The number of ants the colony has
@@ -89,6 +89,7 @@ namespace AntSimulation
                 ant = Instantiate(workerAntObj, this.transform.position, new Quaternion(), this.transform).GetComponent<Ant>();
             }
             ant.SetColony(this.colonyID);
+            ant.gameObject.layer = 9 + colonyID;
             this.AntCount++;
         }
 
@@ -99,10 +100,10 @@ namespace AntSimulation
         internal void BroughtHomeFood()
         {
             this.FoodReserve += 4f;
-            if (SimulationOptions.SpawnAntWhenFoodIsBroughtHome && this.FoodReserve > 500f)
+            if (SimulationOptions.SpawnAntWhenFoodIsBroughtHome && this.FoodReserve > populatioSize * 4)
             {
                 AddAnt();
-                FoodReserve -= 3f;
+                FoodReserve -= 9f;
             }
         }
 

@@ -13,7 +13,7 @@ namespace AntSimulation
 
         private static GameObject colonyObj; //The colony prefab
 
-        private short nextID = 0; //The next colonyID
+        private sbyte nextID = 0; //The next colonyID
 
         //------------------------------------------------------------------------------
         //Runs when the script is loaded
@@ -58,6 +58,7 @@ namespace AntSimulation
         {
             Colony colony = Instantiate(colonyObj, position, new Quaternion(), this.transform).GetComponent<Colony>();
             colony.colonyID = nextID++;
+            nextID %= SimulationOptions.NumberOfTeams;
             colony.AddAnts(popSize);
         }
     }

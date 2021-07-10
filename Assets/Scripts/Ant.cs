@@ -14,10 +14,10 @@ namespace AntSimulation
         private Colony parentColony; //The colony of the ant's
         private static int foodLayerMask; //The mask for the foodLayer
         private static int foodTrailLayerMask; //The mask for the foodTrailLayer
-        internal static int antLayerMask; //The mask for the antLayer
         private static Transform DroppedCellParent; //Pointer to the DroppedCells collection (So we can organize them logically)
         private static GameObject DroppedCellPrefab; //Prefab for the droppedCellObject
         private float consumption; //Calculated consumption for every move
+        protected int otherAntsLayersMask; //The other layers where could be enemies
 
         //Constants
 
@@ -25,6 +25,7 @@ namespace AntSimulation
         protected float colXCoord; //The x coordinate of the colony
         protected float colYCoord; //The y coordinate of the colony
         protected float maxHunger; //The maximum amount the ant can fill itself at the colony
+        protected float maxHealth; //The maximum amount of health it can have
 
         protected float lookingDirection = 0f; //The direction which the ant is looking (in radian)
         protected Stack<Vector2> breadCrumbs = new Stack<Vector2>(); //The cells location which the ant drops when it doesn't carry any food
@@ -33,9 +34,7 @@ namespace AntSimulation
         protected List<Vector2> previousFoodTrails = new List<Vector2>(); //The coordinates of the previous foodTrails so it can be passed to the next foodTrail (it's may size is equal to the numberOfBreadCrumbs)
         protected Stack<Vector2> nextFoodTrail = new Stack<Vector2>(); //This stack is filled when the ant sees a foodTrail
 
-        protected float maxHealth;
-
-        public short ColonyID { get; private set; } = -1;
+        public sbyte ColonyID { get; private set; } = -1;
 
         /// <summary>
         /// Returns the x pos of the ant
@@ -109,7 +108,6 @@ namespace AntSimulation
             //Fills the cache
             foodLayerMask = 1 << LayerMask.NameToLayer("foodLayer");
             foodTrailLayerMask = 1 << LayerMask.NameToLayer("foodTrailLayer");
-            antLayerMask = 1 << LayerMask.NameToLayer("antLayer");
             DroppedCellParent = GameObject.Find("AntDroppedCells").transform;
             DroppedCellPrefab = Resources.Load<GameObject>("Prefabs/AntDroppedCell");
         }
@@ -351,12 +349,16 @@ namespace AntSimulation
         /// </summary>
         /// <param name="colID">the id</param>
         /// <exception cref="Exception">When trying to set it again</exception>
-        public void SetColony(short colID)
+        public void SetColony(sbyte colID)
         {
             if (this.ColonyID == -1)
                 this.ColonyID = colID;
             else
                 throw new System.Exception("You cannot set new colony id to an ant they're not traitors");
+
+            //Please for the love of god don't touch this
+            //Takes out the first 8 layers and this ant's layer from the mask
+            this.otherAntsLayersMask = ~((1 << (9 + colID)) + 511);
         }
 
         //-----------------------------------------------------------------------

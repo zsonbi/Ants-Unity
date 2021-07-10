@@ -8,12 +8,15 @@ namespace AntSimulation
     /// </summary>
     internal class AntDroppedCell : MonoBehaviour
     {
+        //Constants
         public static readonly byte maxTimeToLive = 15; //The time this poor cell can live
 
         //Cache
 
         private SpriteRenderer spriteRendererCache;
         private CircleCollider2D circleColliderCache;
+
+        //Private varriables
 
         private short timeToLive = maxTimeToLive; //The remaining time to live
         private Color color; //The color of the cell

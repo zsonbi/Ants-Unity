@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3488233095811894605}
   - component: {fileID: 2977061801724146364}
   - component: {fileID: 7853462997437700090}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: GypsyAnt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,8 +97,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   food: {fileID: 0}
-  hunger: 0
-  Health: 0
 --- !u!58 &7853462997437700090
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -109,7 +107,7 @@ CircleCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}

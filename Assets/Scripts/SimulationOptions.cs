@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace AntSimulation
 {
     [System.AttributeUsage(System.AttributeTargets.Field)]
@@ -25,6 +21,7 @@ namespace AntSimulation
         internal static readonly float WorkerAntHungerMultiplier = 2f;
         internal static readonly float GypsyAntHungerMultiplier = 1.6f;
         internal static readonly float DefaultColonyFoodReserveSize = 500f;
+        internal static readonly float MaxHunger = 2000f;
 
         //Changeable parameters
 
@@ -56,13 +53,13 @@ namespace AntSimulation
         internal static int StartingPopulation = 100; //The starting number of ants
 
         [Slider]
-        internal static float GypsyRate = 0.0f; //The rate which the gypsies are spawned
+        internal static float GypsyRate = 0.3f; //The rate which the gypsies are spawned
 
         [Slider]
-        internal static float WingedRate = 0.0f; //The rate which the winged ants are spawned
+        internal static float WingedRate = 0.1f; //The rate which the winged ants are spawned
 
         [Slider]
-        internal static float MaxHunger = 2000f; //The amount of food which will be multiplied by the type multipliers
+        internal static sbyte NumberOfTeams = 2; //The number of teams the ants will have
 
         [CheckBox]
         internal static bool SpawnAntWhenFoodIsBroughtHome = true; //Should the colonies spawn new ants when got the food

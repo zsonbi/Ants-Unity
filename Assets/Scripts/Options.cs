@@ -57,14 +57,4 @@ public class Options : MonoBehaviour
     {
         this.gameObject.SetActive(true);
     }
-
-    //---------------------------------------------------------------------------------------
-    /// <summary>
-    /// Should the colonies spawn new ants when food is brought back
-    /// </summary>
-    /// <param name="isChecked">should colonies spawn new ants</param>
-    public void ShouldSpawnAntWhenFoodIsBroughtHome(bool isChecked)
-    {
-        SimulationOptions.SpawnAntWhenFoodIsBroughtHome = isChecked;
-    }
 }
