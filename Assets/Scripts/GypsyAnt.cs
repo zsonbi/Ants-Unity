@@ -8,6 +8,8 @@ namespace AntSimulation
     /// </summary>
     internal class GypsyAnt : Ant
     {
+        private int otherAntsLayersMask = 0; //The other layers where could be enemies
+
         //Constructor -,-
         public GypsyAnt()
         {
@@ -49,6 +51,21 @@ namespace AntSimulation
                 return GetDirectionToHome();
             else
                 return base.lookingDirection += UnityEngine.Random.Range(-0.4f, 0.4f);
+        }
+
+        //-----------------------------------------------------------------
+        /// <summary>
+        /// Sets the ant's colony id to the number
+        /// </summary>
+        /// <param name="colID">the id</param>
+        /// <exception cref="Exception">When trying to set it again</exception>
+        public override void SetColony(sbyte colID)
+        {
+            base.SetColony(colID);
+
+            //Please for the love of god don't touch this
+            //Takes out the first 8 layers and this ant's layer from the mask
+            this.otherAntsLayersMask = ~((1 << (9 + colID)) + 511);
         }
     }
 }

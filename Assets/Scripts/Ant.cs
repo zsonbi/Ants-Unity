@@ -17,7 +17,6 @@ namespace AntSimulation
         private static Transform DroppedCellParent; //Pointer to the DroppedCells collection (So we can organize them logically)
         private static GameObject DroppedCellPrefab; //Prefab for the droppedCellObject
         private float consumption; //Calculated consumption for every move
-        protected int otherAntsLayersMask; //The other layers where could be enemies
 
         //Constants
 
@@ -349,16 +348,12 @@ namespace AntSimulation
         /// </summary>
         /// <param name="colID">the id</param>
         /// <exception cref="Exception">When trying to set it again</exception>
-        public void SetColony(sbyte colID)
+        public virtual void SetColony(sbyte colID)
         {
             if (this.ColonyID == -1)
                 this.ColonyID = colID;
             else
                 throw new System.Exception("You cannot set new colony id to an ant they're not traitors");
-
-            //Please for the love of god don't touch this
-            //Takes out the first 8 layers and this ant's layer from the mask
-            this.otherAntsLayersMask = ~((1 << (9 + colID)) + 511);
         }
 
         //-----------------------------------------------------------------------
